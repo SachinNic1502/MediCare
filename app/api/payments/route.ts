@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import { Payment } from '@/models';
+import { Payment, Appointment, User, Doctor } from '@/models';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,10 +20,16 @@ export async function GET(request: NextRequest) {
     const payments = await Payment.find(query)
       .populate({
         path: 'appointmentId',
-        populate: {
-          path: 'doctorId',
-          select: 'name specialty'
-        }
+        populate: [
+          {
+            path: 'doctorId',
+            select: 'name specialty consultationFee'
+          },
+          {
+            path: 'patientId',
+            select: 'firstName lastName email'
+          }
+        ]
       })
       .sort({ createdAt: -1 })
       .lean();
@@ -49,7 +55,7 @@ export async function POST(request: NextRequest) {
     const payment = new Payment({
       appointmentId: body.appointmentId,
       amount: body.amount,
-      status: 'pending',
+      status: body.status || 'pending',
       paymentMethod: body.paymentMethod,
       transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date(),

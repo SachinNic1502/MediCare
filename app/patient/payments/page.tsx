@@ -60,7 +60,7 @@ export default function PatientPayments() {
   const handlePayNow = async (paymentId: string) => {
     try {
       // In a real app, this would integrate with a payment processor
-      const response = await fetch(`/api/payments/${paymentId}/pay`, {
+      const response = await fetch(`/api/payments/${paymentId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -144,10 +144,6 @@ Appointment: ${receiptData?.appointmentId?.date ? new Date(receiptData.appointme
           <h1 className="text-3xl font-bold text-foreground">Payment History</h1>
           <p className="text-muted-foreground">View and manage your payment transactions</p>
         </div>
-        <Button>
-          <CreditCard className="w-4 h-4 mr-2" />
-          Make Payment
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -299,17 +295,19 @@ Appointment: ${receiptData?.appointmentId?.date ? new Date(receiptData.appointme
         </div>
       </Card>
 
-      {filteredPayments.length === 0 && (
-        <Card className="p-12 text-center">
-          <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">No payments found</h3>
-          <p className="text-muted-foreground mb-4">Your payment history will appear here once you make appointments.</p>
-          <Button onClick={() => router.push('/patient/book-appointment')}>
-            <Calendar className="w-4 h-4 mr-2" />
-            Book Appointment
-          </Button>
-        </Card>
-      )}
-    </div>
+      {
+        filteredPayments.length === 0 && (
+          <Card className="p-12 text-center">
+            <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">No payments found</h3>
+            <p className="text-muted-foreground mb-4">Your payment history will appear here once you make appointments.</p>
+            <Button onClick={() => router.push('/patient/book-appointment')}>
+              <Calendar className="w-4 h-4 mr-2" />
+              Book Appointment
+            </Button>
+          </Card>
+        )
+      }
+    </div >
   );
 }

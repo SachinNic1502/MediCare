@@ -7,7 +7,38 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/auth-context';
-import { Users, Calendar, Stethoscope, BarChart3, TrendingUp, ArrowUpRight, Activity, Clock, RefreshCcw } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import {
+  Users,
+  Calendar,
+  Stethoscope,
+  BarChart3,
+  TrendingUp,
+  ArrowUpRight,
+  Activity,
+  Clock,
+  RefreshCcw,
+  CreditCard,
+  Plus,
+  Check
+} from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -19,7 +50,6 @@ import {
   BarChart,
   Bar
 } from 'recharts';
-import { toast } from 'sonner';
 
 interface AdminStats {
   totalPatients: number;
@@ -46,6 +76,14 @@ export default function AdminDashboard() {
   const [recentAppointments, setRecentAppointments] = useState<RecentAppointment[]>([]);
   const [trendData, setTrendData] = useState<any[]>([]);
 
+  // Payment states
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAptId, setSelectedAptId] = useState<string>('');
+  const [amount, setAmount] = useState<string>('');
+  const [method, setMethod] = useState<string>('cash');
+  const [creating, setCreating] = useState(false);
+  const [availableApts, setAvailableApts] = useState<any[]>([]);
+
   const fetchData = async () => {
     try {
       setRefreshing(true);
@@ -68,13 +106,59 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchAvailableApts = async () => {
+    try {
+      const res = await fetch('/api/appointments?status=scheduled&limit=20');
+      const data = await res.json();
+      if (data.success) setAvailableApts(data.data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     if (!user || user.role !== 'admin') {
       router.push('/login');
       return;
     }
     fetchData();
+    fetchAvailableApts();
   }, [user, router]);
+
+  const handleRecordPayment = async () => {
+    if (!selectedAptId || !amount) {
+      toast.error('Details incomplete');
+      return;
+    }
+
+    try {
+      setCreating(true);
+      const res = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointmentId: selectedAptId,
+          amount: parseFloat(amount),
+          paymentMethod: method,
+          status: (method === 'cash' || method === 'bank_transfer') ? 'paid' : 'pending'
+        })
+      });
+
+      if ((await res.json()).success) {
+        toast.success('Payment recorded successfully');
+        setIsDialogOpen(false);
+        fetchData(); // Refresh stats
+        setSelectedAptId('');
+        setAmount('');
+      } else {
+        toast.error('Failed to record payment');
+      }
+    } catch (e) {
+      toast.error('Network error');
+    } finally {
+      setCreating(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -141,6 +225,73 @@ export default function AdminDashboard() {
           <p className="text-muted-foreground mt-1 font-medium">Overview of hospital operations & appointments</p>
         </div>
         <div className="flex items-center gap-3">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-xl font-bold h-12 px-6 shadow-xl shadow-primary/20 bg-primary text-white hover:bg-primary/90">
+                <Plus className="w-4 h-4 mr-2" />
+                Record Payment
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="rounded-[2rem] border-none shadow-2xl max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-black">Record <span className="text-primary italic">Payment</span></DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Select Appointment</Label>
+                  <Select value={selectedAptId} onValueChange={(val) => {
+                    setSelectedAptId(val);
+                    const apt = availableApts.find(a => a._id === val);
+                    if (apt) setAmount((apt.consultationFee || apt.doctorId?.consultationFee || '').toString());
+                  }}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200">
+                      <SelectValue placeholder="Choose appointment..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-xl">
+                      {availableApts.map(a => (
+                        <SelectItem key={a._id} value={a._id} className="rounded-lg">
+                          {a.patientId?.firstName} vs {a.doctorId?.name} ({new Date(a.date).toLocaleDateString()})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Amount ($)</Label>
+                  <Input
+                    type="number"
+                    value={amount}
+                    onChange={e => setAmount(e.target.value)}
+                    className="h-12 rounded-xl border-slate-200 font-bold"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Payment Method</Label>
+                  <Select value={method} onValueChange={setMethod}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-xl">
+                      <SelectItem value="cash" className="rounded-lg">Cash</SelectItem>
+                      <SelectItem value="credit_card" className="rounded-lg">Credit Card</SelectItem>
+                      <SelectItem value="bank_transfer" className="rounded-lg">Bank Transfer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  className="w-full h-12 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+                  onClick={handleRecordPayment}
+                  disabled={creating}
+                >
+                  {creating ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
+                  Confirm Entry
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <Button
             variant="outline"
             className="rounded-xl font-bold gap-2 h-12 px-6 bg-white"
@@ -148,13 +299,8 @@ export default function AdminDashboard() {
             disabled={refreshing}
           >
             <RefreshCcw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-            Sync Data
+            Sync
           </Button>
-          <Link href="/admin/appointments">
-            <Button className="rounded-xl font-bold h-12 px-8 shadow-xl shadow-primary/20">
-              Appointments
-            </Button>
-          </Link>
         </div>
       </div>
 
@@ -311,6 +457,17 @@ export default function AdminDashboard() {
                 <ArrowUpRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-primary" />
               </Button>
             </Link>
+            <Link href="/admin/payments">
+              <Button variant="ghost" className="w-full justify-between gap-3 h-14 rounded-2xl hover:bg-white hover:shadow-xl hover:shadow-primary/5 text-foreground font-black group transition-all duration-300 hover:scale-[1.02] border border-transparent hover:border-border/50 px-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all duration-300">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <span>Revenue Management</span>
+                </div>
+                <ArrowUpRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-primary" />
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -327,12 +484,13 @@ export default function AdminDashboard() {
                   <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Doctor</th>
                   <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Timing</th>
                   <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
+                  <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-muted/50">
                 {recentAppointments.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center">
+                    <td colSpan={5} className="px-6 py-8 text-center">
                       <div className="text-muted-foreground font-medium">No recent appointments found.</div>
                     </td>
                   </tr>
@@ -366,6 +524,23 @@ export default function AdminDashboard() {
                         <Badge className={`px-3 py-1 text-[10px] uppercase font-black border tracking-tighter ${statusBadgeColor[appointment.status]}`}>
                           {appointment.status}
                         </Badge>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        {appointment.status !== 'cancelled' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-emerald-50 text-emerald-600"
+                            onClick={() => {
+                              setSelectedAptId(appointment.id);
+                              // We don't have consultation fee in the recentAppointments list from /api/admin/stats
+                              // but we can open the dialog and let them fill it or ideally we'd fetch it.
+                              setIsDialogOpen(true);
+                            }}
+                          >
+                            <CreditCard className="w-4 h-4" />
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))

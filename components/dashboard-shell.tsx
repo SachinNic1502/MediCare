@@ -40,12 +40,13 @@ const sidebarLinks: SidebarLink[] = [
     { name: 'Doctors', href: '/admin/doctors', icon: Stethoscope, role: 'admin' },
     { name: 'Patients', href: '/admin/patients', icon: Users, role: 'admin' },
     { name: 'Appointments', href: '/admin/appointments', icon: Calendar, role: 'admin' },
+    { name: 'Payments', href: '/admin/payments', icon: CreditCard, role: 'admin' },
 
     // Patient Links
     { name: 'Health Center', href: '/patient/dashboard', icon: Activity, role: 'patient' },
     { name: 'My Appointments', href: '/patient/appointments', icon: History, role: 'patient' },
     { name: 'Find Doctors', href: '/doctors', icon: Stethoscope, role: 'patient' },
-    { name: 'Payments', href: '/patient/payments', icon: CreditCard, role: 'patient' },
+    // { name: 'Payments', href: '/patient/payments', icon: CreditCard, role: 'patient' },
 
     // Common Links
     // { name: 'Account Settings', href: '/settings', icon: Settings },
