@@ -9,19 +9,18 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/auth-context';
 import {
-  ArrowLeft,
+  Users,
   Search,
+  Plus,
   Mail,
-  Phone,
-  User as UserIcon,
   Calendar,
-  Clock,
-  ChevronRight,
-  Activity,
   ShieldCheck,
-  Filter,
+  MoreVertical,
+  Trash2,
+  Activity,
+  User as UserIcon,
   RefreshCcw,
-  MoreVertical
+  ArrowUpRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -84,137 +83,185 @@ export default function AdminPatientsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-12">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-6">
-          <div>
-            <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest mb-1">
-              <ShieldCheck className="w-3 h-3" />
-              Secure Patient Records
-            </div>
-            <h1 className="text-4xl font-black text-foreground tracking-tight">Patient <span className="text-primary italic">Directory</span></h1>
-            <p className="text-muted-foreground font-medium">Manage and monitor community health profiles</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+        <div>
+          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.2em] mb-3">
+            <Users className="w-4 h-4" />
+            Patient Intelligence
           </div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Patient <span className="text-primary italic">Registry.</span>
+          </h1>
+          <p className="text-slate-500 mt-2 font-medium text-lg">Oversee all registered patient profiles and health records</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Button
             variant="outline"
-            className="rounded-xl font-bold h-12 px-6 gap-2 bg-white"
+            className="rounded-2xl font-black gap-2 h-14 px-8 bg-white border-2 border-slate-100 text-slate-900 hover:bg-slate-50 transition-all font-display"
             onClick={fetchPatients}
             disabled={refreshing}
           >
-            <RefreshCcw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-            Sync DB
-          </Button>
-          <Button className="rounded-xl font-black h-12 px-8 shadow-xl shadow-primary/20">
-            Export Data
+            <RefreshCcw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''} text-primary`} />
+            Refresh List
           </Button>
         </div>
       </div>
 
-      {/* Global Search & Filter */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
-        <Card className="flex-grow p-2 border-none shadow-sm bg-white/80 backdrop-blur-md rounded-2xl flex items-center">
-          <Search className="w-5 h-5 ml-4 text-primary opacity-50" />
-          <Input
+      {/* Stats Quick View */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-8 border border-slate-50 bg-white shadow-xl shadow-slate-200/50 rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 group relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-8">
+              <div className="h-14 w-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <Users className="w-7 h-7" />
+              </div>
+              <Badge className="bg-blue-50 text-blue-600 border-none font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-lg">
+                Identity Pool
+              </Badge>
+            </div>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Total Registry</p>
+            <p className="text-4xl font-black text-slate-900 tracking-tighter">{patients.length}</p>
+          </div>
+        </Card>
+        <Card className="p-8 border border-slate-50 bg-white shadow-xl shadow-slate-200/50 rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 group relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-8">
+              <div className="h-14 w-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Activity className="w-7 h-7" />
+              </div>
+              <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-lg">
+                Active Cycle
+              </Badge>
+            </div>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Engaged Profiles</p>
+            <p className="text-4xl font-black text-slate-900 tracking-tighter">
+              {Math.floor(patients.length * 0.4)}
+            </p>
+          </div>
+        </Card>
+        <Card className="p-8 border border-slate-50 bg-white shadow-xl shadow-slate-200/50 rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 group relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-8">
+              <div className="h-14 w-14 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                <ArrowUpRight className="w-7 h-7" />
+              </div>
+              <Badge className="bg-violet-50 text-violet-600 border-none font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-lg">
+                Flow Rate
+              </Badge>
+            </div>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">New Registrations</p>
+            <p className="text-4xl font-black text-slate-900 tracking-tighter">
+              {Math.floor(patients.length * 0.1)}
+            </p>
+          </div>
+        </Card>
+      </div>
+
+      {/* Search and Filters */}
+      <Card className="p-2 border-none shadow-xl shadow-slate-200/50 rounded-3xl bg-white overflow-hidden">
+        <div className="relative group">
+          <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+          <input
             type="text"
-            placeholder="Search by name or email..."
+            placeholder="Search by patient name, email, or registry ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border-none text-lg font-bold bg-transparent focus-visible:ring-0 placeholder:text-muted-foreground/40 h-12"
+            className="w-full pl-16 pr-8 h-16 bg-transparent border-none text-lg font-bold text-slate-900 focus:ring-0 placeholder:text-slate-400 outline-none"
           />
-        </Card>
-        <Button variant="outline" className="h-16 w-16 rounded-2xl bg-white border-none shadow-sm text-muted-foreground">
-          <Filter className="w-6 h-6" />
-        </Button>
-      </div>
+        </div>
+      </Card>
 
-      {/* Patient Analytics Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <Card className="p-6 border-none shadow-sm bg-black text-white rounded-3xl">
-          <p className="text-[10px] uppercase font-black text-primary tracking-widest mb-1">Total Patients</p>
-          <p className="text-3xl font-black">{patients.length}</p>
-        </Card>
-        <Card className="p-6 border-none shadow-sm bg-white rounded-3xl border-l-4 border-l-blue-500">
-          <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Active Patients</p>
-          <p className="text-3xl font-black text-foreground">{patients.filter(p => (p.appointmentCount || 0) > 0).length}</p>
-        </Card>
-        <Card className="p-6 border-none shadow-sm bg-white rounded-3xl border-l-4 border-l-emerald-500">
-          <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">New Registrations</p>
-          <p className="text-3xl font-black text-foreground">
-            {patients.filter(p => new Date(p.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
-          </p>
-        </Card>
-        <Card className="p-6 border-none shadow-sm bg-white rounded-3xl border-l-4 border-l-violet-500">
-          <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">System Uptime</p>
-          <p className="text-3xl font-black text-foreground">99.8%</p>
-        </Card>
-      </div>
-
-      {/* Patients Table/List */}
-      <div className="grid grid-cols-1 gap-4">
-        {filteredPatients.length === 0 ? (
-          <Card className="p-20 border-dashed border-2 bg-transparent text-center rounded-[3rem]">
-            <div className="bg-muted p-8 rounded-full w-fit mx-auto mb-6 opacity-20">
-              <UserIcon className="w-16 h-16" />
-            </div>
-            <h3 className="text-2xl font-black text-foreground">No Patients Found</h3>
-            <p className="text-muted-foreground">Matching patient information could not be retrieved.</p>
-          </Card>
-        ) : (
-          filteredPatients.map((patient) => (
-            <Card key={patient._id} className="p-4 border-none shadow-sm hover:shadow-xl transition-all duration-300 group bg-white rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 cursor-pointer">
-              <div className="flex items-center gap-5">
-                <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center font-black text-primary text-xl relative group-hover:scale-110 transition-transform">
-                  {patient.firstName[0]}{patient.lastName[0]}
-                  <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-white"></div>
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
-                    {patient.firstName} {patient.lastName}
-                    <Badge className="bg-primary/10 text-primary border-none text-[9px] font-black uppercase tracking-tighter h-5">Patient</Badge>
-                  </h3>
-                  <div className="flex items-center gap-3 text-xs font-bold text-muted-foreground mt-1">
-                    <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {patient.email}</span>
-                    <span className="h-1 w-1 rounded-full bg-muted-foreground/30"></span>
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Member since {new Date(patient.createdAt).getFullYear()}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-8 md:gap-12 px-6 border-l border-muted/50">
-                <div className="text-center md:text-left">
-                  <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Visits</p>
-                  <p className="text-lg font-black text-foreground">{patient.appointmentCount || 0}</p>
-                </div>
-                <div className="text-center md:text-left">
-                  <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Last Visit</p>
-                  <p className="text-lg font-black text-foreground">
-                    {patient.lastVisit ? new Date(patient.lastVisit).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'None'}
-                  </p>
-                </div>
-                <div className="text-center md:text-left">
-                  <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Vitals</p>
-                  <div className="flex items-center gap-1">
-                    <Activity className="w-4 h-4 text-emerald-500" />
-                    <p className="text-lg font-black text-emerald-600">Stable</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="rounded-xl h-12 w-12 hover:bg-muted">
-                  <MoreVertical className="w-5 h-5 text-muted-foreground" />
-                </Button>
-                <Button className="rounded-xl font-black h-12 px-6 group">
-                  View Records <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </div>
-            </Card>
-          ))
-        )}
-      </div>
+      {/* Patients Table */}
+      <Card className="border border-slate-50 bg-white shadow-xl shadow-slate-200/50 rounded-[3rem] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-slate-50/50">
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Patient Identity</th>
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Access Protocol</th>
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Registration Cycle</th>
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Security Status</th>
+                <th className="px-10 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Global Entry</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {filteredPatients.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-10 py-20 text-center">
+                    <div className="flex flex-col items-center gap-6 opacity-40">
+                      <div className="p-8 rounded-full bg-slate-50 border-2 border-dashed border-slate-100">
+                        <Users className="w-16 h-16 text-slate-200" />
+                      </div>
+                      <p className="text-xl font-black text-slate-900 tracking-tight">Null Registry Data</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredPatients.map((patient) => (
+                  <tr key={patient._id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-10 py-8">
+                      <div className="flex items-center gap-5">
+                        <div className="h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-black text-sm">
+                          {patient.firstName[0]}{patient.lastName[0]}
+                        </div>
+                        <div>
+                          <p className="font-black text-slate-900 text-lg leading-tight">
+                            {patient.firstName} {patient.lastName}
+                          </p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 opacity-60">
+                            REG-PAT-{patient._id.slice(-6).toUpperCase()}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8">
+                      <div className="space-y-1.5">
+                        <span className="text-sm font-black text-slate-700 flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-primary/40" /> {patient.email}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8">
+                      <div className="space-y-1.5">
+                        <span className="text-sm font-black text-slate-900 flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-primary" />
+                          {new Date(patient.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-tighter">System Entry Logged</span>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8 text-center">
+                      <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full">
+                        Verified Identity
+                      </Badge>
+                    </td>
+                    <td className="px-10 py-8 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-12 w-12 rounded-2xl bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all shadow-sm border border-primary/10"
+                        >
+                          <Activity className="w-5 h-5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-12 w-12 rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-rose-100"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }

@@ -137,143 +137,180 @@ Appointment: ${receiptData?.appointmentId?.date ? new Date(receiptData.appointme
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Payment History</h1>
-          <p className="text-muted-foreground">View and manage your payment transactions</p>
+          <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-widest mb-1">
+            <CreditCard className="w-4 h-4" />
+            Financial Records
+          </div>
+          <h1 className="text-4xl font-black text-foreground tracking-tight">
+            Payment <span className="text-primary italic">History</span>
+          </h1>
+          <p className="text-muted-foreground mt-1 font-medium">Track all your medical expense transactions</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="rounded-xl font-bold gap-2 h-12 px-6 bg-white border-slate-200">
+            <RefreshCcw className="w-4 h-4" />
+            Sync
+          </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Spent</p>
-              <p className="text-2xl font-bold text-emerald-600">${stats.totalSpent.toFixed(2)}</p>
+      {/* Financial Stats Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="p-6 border-none shadow-sm bg-white rounded-2xl group hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Total Spent</p>
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
+              <CreditCard className="w-5 h-5" />
             </div>
-            <CreditCard className="h-8 w-8 text-emerald-600" />
           </div>
+          <p className="text-3xl font-black text-emerald-600">${stats.totalSpent.toFixed(2)}</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-1">Lifetime</p>
         </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Paid</p>
-              <p className="text-2xl font-bold text-green-600">{stats.paid}</p>
+        <Card className="p-6 border-none shadow-sm bg-white rounded-2xl group hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Paid</p>
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
+              <CheckCircle className="w-5 h-5" />
             </div>
-            <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
+          <p className="text-3xl font-black text-foreground">{stats.paid}</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-1">Transactions</p>
         </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Pending</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+        <Card className="p-6 border-none shadow-sm bg-white rounded-2xl group hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Pending</p>
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600">
+              <Clock className="w-5 h-5" />
             </div>
-            <Clock className="h-8 w-8 text-yellow-600" />
           </div>
+          <p className="text-3xl font-black text-foreground">{stats.pending}</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-1">Awaiting</p>
         </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Refunded</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.refunded}</p>
+        <Card className="p-6 border-none shadow-sm bg-white rounded-2xl group hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Refunded</p>
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600">
+              <AlertCircle className="w-5 h-5" />
             </div>
-            <AlertCircle className="h-8 w-8 text-blue-600" />
           </div>
+          <p className="text-3xl font-black text-foreground">{stats.refunded}</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-1">Processed</p>
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card className="p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search payments..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
+      {/* Search and Filters */}
+      <Card className="p-4 border-none shadow-sm bg-white rounded-2xl">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by doctor, transaction ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+            />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {['all', 'paid', 'pending', 'refunded'].map((status) => (
               <Button
                 key={status}
-                variant={filterStatus === status ? 'default' : 'outline'}
+                variant={filterStatus === status ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setFilterStatus(status)}
+                className={`rounded-xl px-5 font-black text-[10px] uppercase tracking-widest h-11 ${
+                  filterStatus === status 
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                    : 'text-slate-500 hover:bg-slate-50'
+                }`}
               >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {status}
               </Button>
             ))}
           </div>
         </div>
       </Card>
 
-      {/* Payments Table */}
-      <Card className="border-border">
+      {/* Transactions Table */}
+      <Card className="border-none shadow-sm bg-white rounded-[2rem] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-muted/50 border-b border-border">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground uppercase tracking-wider">Doctor</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground uppercase tracking-wider">Method</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+            <thead>
+              <tr className="bg-slate-50/50 border-b border-slate-100">
+                <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Transaction</th>
+                <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Medical Provider</th>
+                <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Amount</th>
+                <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status</th>
+                <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-slate-100">
               {filteredPayments.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
-                    No payments found matching your filters.
+                  <td colSpan={5} className="px-8 py-20 text-center">
+                    <div className="flex flex-col items-center gap-4 opacity-20">
+                      <CreditCard className="w-16 h-16" />
+                      <p className="text-xl font-black">No payment records found</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredPayments.map((payment) => (
-                  <tr key={payment._id} className="hover:bg-muted/50 transition-colors">
-                    <td className="px-6 py-4 text-sm text-muted-foreground">
-                      {new Date(payment.createdAt).toLocaleDateString()}
+                  <tr key={payment._id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-8 py-6">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-black text-slate-900 flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-primary" />
+                          {new Date(payment.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">
+                          #{payment.transactionId.slice(-6).toUpperCase()}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div>
-                        <div className="font-medium text-foreground">{payment?.appointmentId?.doctorName || 'Unknown'}</div>
-                        <div className="text-xs text-muted-foreground">{payment?.appointmentId?.specialty || 'N/A'}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {payment?.appointmentId?.date ? new Date(payment.appointmentId.date).toLocaleDateString() : 'N/A'} at {payment?.appointmentId?.time || ''}
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-bold">
+                          {payment?.appointmentId?.doctorName?.[0] || 'D'}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{payment?.appointmentId?.doctorName || 'Unknown'}</p>
+                          <p className="text-[10px] font-black text-primary uppercase tracking-tighter">{payment?.appointmentId?.specialty || 'N/A'}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-foreground">
-                      ${payment.amount.toFixed(2)}
+                    <td className="px-8 py-6 text-center">
+                      <div className="inline-flex flex-col items-center bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                        <span className="text-lg font-black text-slate-900">${payment.amount.toFixed(2)}</span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{payment.paymentMethod}</span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">
-                      {payment.paymentMethod}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <Badge variant="outline">
-                        {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                    <td className="px-8 py-6 text-center">
+                      <Badge className={`
+                        px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter border-none
+                        ${payment.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600' : 
+                          payment.status === 'pending' ? 'bg-amber-500/10 text-amber-600' : 
+                          'bg-blue-500/10 text-blue-600'}
+                      `}>
+                        {payment.status}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="flex gap-2">
+                    <td className="px-8 py-6 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         {payment.status === 'pending' && (
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handlePayNow(payment._id)}
+                            className="h-9 rounded-xl font-bold border-emerald-100 text-emerald-600 hover:bg-emerald-50"
                           >
                             Pay Now
                           </Button>
@@ -282,8 +319,9 @@ Appointment: ${receiptData?.appointmentId?.date ? new Date(receiptData.appointme
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDownloadReceipt(payment._id)}
+                          className="h-9 w-9 rounded-xl text-slate-400 hover:text-primary hover:bg-primary/5"
                         >
-                          <Download className="h-4 w-4" />
+                          <Download className="w-4 h-4" />
                         </Button>
                       </div>
                     </td>
@@ -295,19 +333,25 @@ Appointment: ${receiptData?.appointmentId?.date ? new Date(receiptData.appointme
         </div>
       </Card>
 
-      {
-        filteredPayments.length === 0 && (
-          <Card className="p-12 text-center">
-            <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">No payments found</h3>
-            <p className="text-muted-foreground mb-4">Your payment history will appear here once you make appointments.</p>
-            <Button onClick={() => router.push('/patient/book-appointment')}>
-              <Calendar className="w-4 h-4 mr-2" />
-              Book Appointment
-            </Button>
-          </Card>
-        )
-      }
-    </div >
+      {/* Empty State */}
+      {filteredPayments.length === 0 && (
+        <Card className="p-20 text-center border-none shadow-sm bg-white rounded-[2rem]">
+          <div className="bg-slate-100 p-10 rounded-full w-fit mx-auto mb-8">
+            <CreditCard className="w-20 h-20 text-slate-300" />
+          </div>
+          <h3 className="text-3xl font-black text-foreground mb-4 tracking-tight">No Payment <span className="text-primary italic">History</span></h3>
+          <p className="text-lg text-slate-600 max-w-sm mx-auto mb-10 font-medium">
+            Your payment transactions will appear here once you complete appointments.
+          </p>
+          <Button 
+            onClick={() => router.push('/patient/book-appointment')}
+            className="rounded-2xl font-bold h-14 px-12 shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white text-lg"
+          >
+            <Calendar className="w-5 h-5 mr-2" />
+            Book Appointment
+          </Button>
+        </Card>
+      )}
+    </div>
   );
 }

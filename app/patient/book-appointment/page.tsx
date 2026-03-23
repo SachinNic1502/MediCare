@@ -6,7 +6,22 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/lib/auth-context';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  ArrowRight,
+  Clock, 
+  Calendar, 
+  MapPin, 
+  Star, 
+  CheckCircle,
+  Activity,
+  Users,
+  ShieldCheck,
+  Search,
+  Filter
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 interface Doctor {
   _id: string;
@@ -17,6 +32,7 @@ interface Doctor {
   location: string;
   availability: string;
   availableSlots: string[];
+  consultationFee: number;
 }
 
 export default function BookAppointmentPage() {
@@ -109,64 +125,111 @@ export default function BookAppointmentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/patient/dashboard">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
+    <div className="min-h-screen bg-slate-50 py-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
+          <div className="flex items-center gap-8">
+            <Link href="/patient/dashboard">
+              <Button variant="outline" className="rounded-2xl h-14 w-14 border-2 border-slate-200 hover:bg-slate-50 text-slate-900 transition-all">
+                <ArrowLeft className="w-6 h-6" />
+              </Button>
+            </Link>
+            <div>
+              <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-2">
+                <Calendar className="w-4 h-4" />
+                Book a Visit
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                Schedule a <span className="text-primary italic">Doctor</span>
+              </h1>
+              <p className="text-slate-500 mt-2 font-medium text-lg">Choose from our verified medical experts</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" className="rounded-2xl font-bold gap-2 h-14 px-8 bg-white border-2 border-slate-100 text-slate-900 hover:bg-slate-50">
+              <Filter className="w-5 h-5 text-slate-400" />
+              Filter
             </Button>
-          </Link>
-          <div>
-            <h1 className="text-4xl font-bold text-foreground">Book an Appointment</h1>
-            <p className="text-muted-foreground">
-              Select a doctor and choose your preferred date and time
-            </p>
+            <div className="relative">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search expert..."
+                className="pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all placeholder:text-slate-400 w-80 shadow-sm"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Doctor Selection */}
-          <div className="lg:col-span-2">
-            <h2 className="text-xl font-semibold text-foreground mb-6">Select a Doctor</h2>
-            <div className="space-y-4">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="flex items-center justify-between px-2">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Available <span className="text-primary italic">Experts</span></h2>
+                <p className="text-sm text-slate-500 font-medium mt-1">{doctors.length} verified doctors</p>
+              </div>
+              <Badge className="bg-blue-50 text-primary border-none font-bold text-[10px] uppercase tracking-wider px-5 py-2 rounded-full">
+                {selectedDoctor ? 'Selected' : 'None Selected'}
+              </Badge>
+            </div>
+            
+            <div className="space-y-6">
               {doctors.map((doctor) => (
                 <Card
                   key={doctor._id}
-                  className={`p-6 border-2 cursor-pointer transition ${selectedDoctor === doctor._id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                    }`}
+                  className={`p-10 border-2 transition-all duration-500 group relative bg-white rounded-[2.5rem] cursor-pointer ${
+                    selectedDoctor === doctor._id
+                      ? 'border-primary shadow-2xl shadow-primary/10 bg-blue-50/20'
+                      : 'border-slate-50 shadow-lg shadow-black/5 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1'
+                  }`}
                   onClick={() => setSelectedDoctor(doctor._id)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-foreground mb-1">
-                        {doctor.name}
-                      </h3>
-                      <p className="text-sm text-primary font-medium mb-2">
-                        {doctor.specialty}
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Experience: {doctor.experience} years
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        📍 {doctor.location}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-yellow-500">★</span>
-                        <span className="font-medium text-foreground">{doctor.rating}</span>
+                      <div className="flex items-center gap-6 mb-8">
+                        <div className="h-20 w-20 rounded-[1.8rem] bg-slate-50 flex items-center justify-center text-primary font-black text-3xl border border-slate-100 group-hover:bg-primary group-hover:text-white transition-colors duration-500">
+                          {doctor.name[0]}
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1 italic">World Class Expert</p>
+                          <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{doctor.name}</h3>
+                          <p className="text-sm font-bold text-slate-400 mt-2 uppercase tracking-tighter">{doctor.specialty}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div
-                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${selectedDoctor === doctor._id
-                          ? 'border-primary bg-primary'
-                          : 'border-border'
-                        }`}
-                    >
-                      {selectedDoctor === doctor._id && (
-                        <span className="text-primary-foreground font-bold">✓</span>
-                      )}
+                      
+                      <div className="grid grid-cols-2 gap-8 mb-8">
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                            <Clock className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Experience</p>
+                            <p className="text-lg font-black text-slate-900">{doctor.experience} Years</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center text-amber-500">
+                            <Star className="w-5 h-5 fill-amber-500" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rating</p>
+                            <p className="text-lg font-black text-slate-900">{doctor.rating}/5.0</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col sm:flex-row gap-6">
+                        <div className="flex items-center gap-3 text-sm font-bold text-slate-500">
+                          <MapPin className="w-4 h-4 text-primary" />
+                          <span>{doctor.location}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-full">
+                          <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>Available Since {doctor.availability}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -174,100 +237,119 @@ export default function BookAppointmentPage() {
             </div>
           </div>
 
-          {/* Booking Form */}
-          <div>
-            <Card className="p-6 border-border sticky top-20">
-              <h3 className="text-lg font-semibold text-foreground mb-6">Booking Details</h3>
-
-              {error && (
-                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-                  {error}
+          {/* Booking Sidebar */}
+          <div className="lg:col-span-1">
+            <Card className="p-8 border-none shadow-2xl bg-white rounded-[3rem] sticky top-24">
+              <div className="space-y-10">
+                <div className="text-center space-y-2">
+                  <div className="h-16 w-16 bg-primary/10 rounded-[1.5rem] flex items-center justify-center text-primary mx-auto mb-6">
+                    <Calendar className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tight">Visit <span className="text-primary italic">Summary</span></h3>
+                  <p className="text-sm font-bold text-slate-400">Complete your booking below</p>
                 </div>
-              )}
 
-              <div className="space-y-6">
-                {/* Doctor Summary */}
-                {selectedDoctorData && (
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-                    <p className="text-xs text-muted-foreground mb-1">Selected Doctor</p>
-                    <p className="font-semibold text-foreground">
-                      {selectedDoctorData.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedDoctorData.specialty} • {selectedDoctorData.location}
-                    </p>
+                {error && (
+                  <div className="p-5 bg-rose-50 border-2 border-rose-100 rounded-[1.5rem] text-rose-600 font-bold text-xs flex gap-3 items-start animate-fade-in">
+                    <ShieldCheck className="w-5 h-5 shrink-0" />
+                    <span>{error}</span>
                   </div>
                 )}
 
-                {/* Date Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Select Date
-                  </label>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background text-foreground"
-                  />
-                </div>
+                <div className="space-y-8">
+                  {/* Doctor Mini Card */}
+                  {selectedDoctorData && (
+                    <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-4">Selected Doctor</p>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center font-black">{selectedDoctorData.name[0]}</div>
+                          <div>
+                            <p className="font-bold text-slate-900 tracking-tight leading-none">{selectedDoctorData.name}</p>
+                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">{selectedDoctorData.specialty}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+                          <MapPin className="w-3.5 h-3.5" />
+                          {selectedDoctorData.location}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                {/* Time Selection */}
-                {selectedDoctor && (
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-3">
-                      Select Time
-                    </label>
-                    <div className="space-y-2">
-                      {selectedDoctorData?.availableSlots.map((slot) => (
-                        <button
-                          key={slot}
-                          onClick={() => setSelectedTime(slot)}
-                          className={`w-full p-3 rounded-lg border-2 font-medium transition flex items-center justify-center gap-2 ${selectedTime === slot
-                              ? 'border-primary bg-primary text-primary-foreground'
-                              : 'border-border bg-background text-foreground hover:border-primary/50'
+                  {/* Date Input */}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Visit Date</label>
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full px-5 py-5 bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] text-sm font-bold focus:bg-white focus:border-primary/20 transition-all shadow-inner outline-none"
+                    />
+                  </div>
+
+                  {/* Time Slots */}
+                  {selectedDoctor && (
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Available Times</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {selectedDoctorData?.availableSlots.map((slot) => (
+                          <button
+                            key={slot}
+                            onClick={() => setSelectedTime(slot)}
+                            className={`p-4 rounded-[1.2rem] font-bold text-xs transition-all border-2 flex items-center justify-center gap-2 ${
+                              selectedTime === slot
+                                ? 'bg-primary text-white border-primary shadow-xl shadow-primary/20'
+                                : 'bg-white text-slate-600 border-slate-100 hover:border-primary/20 hover:bg-primary/5'
                             }`}
-                        >
-                          <Clock className="w-4 h-4" />
-                          {slot}
-                        </button>
-                      ))}
+                          >
+                            <Clock className="w-3.5 h-3.5" />
+                            {slot}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Summary */}
-                {selectedDoctor && selectedDate && selectedTime && (
-                  <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <p className="text-xs text-muted-foreground mb-2">Appointment Summary</p>
-                    <div className="space-y-1 text-sm">
-                      <p className="text-foreground">
-                        <span className="font-medium">Doctor:</span> {selectedDoctorData?.name}
-                      </p>
-                      <p className="text-foreground">
-                        <span className="font-medium">Specialty:</span> {selectedDoctorData?.specialty}
-                      </p>
-                      <p className="text-foreground">
-                        <span className="font-medium">Location:</span> {selectedDoctorData?.location}
-                      </p>
-                      <p className="text-foreground">
-                        <span className="font-medium">Date:</span> {new Date(selectedDate).toLocaleDateString()}
-                      </p>
-                      <p className="text-foreground">
-                        <span className="font-medium">Time:</span> {selectedTime}
-                      </p>
+                  {/* Pricing and Confirmation */}
+                  {selectedDoctor && selectedDate && selectedTime && (
+                    <div className="p-8 bg-emerald-50 rounded-[2.5rem] border-2 border-emerald-100 space-y-6">
+                      <div className="space-y-3 text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
+                        <div className="flex justify-between">
+                          <span>Service</span>
+                          <span className="text-slate-900">Medical Visit</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Time</span>
+                          <span className="text-slate-900">{selectedTime}</span>
+                        </div>
+                        <div className="flex justify-between pt-4 border-t border-emerald-200">
+                          <span>Total Amount</span>
+                          <span className="text-xl font-black text-slate-900 font-sans">${selectedDoctorData?.consultationFee || 150}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <Button
-                  onClick={handleBooking}
-                  disabled={!selectedDoctor || !selectedDate || !selectedTime || booking}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  {booking ? 'Booking...' : 'Confirm Booking'}
-                </Button>
+                  <Button
+                    onClick={handleBooking}
+                    disabled={!selectedDoctor || !selectedDate || !selectedTime || booking}
+                    className="w-full h-18 rounded-[2rem] font-black text-lg shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white transition-all disabled:opacity-30 leading-none group"
+                  >
+                    {booking ? (
+                      <div className="flex items-center gap-3">
+                        <Activity className="w-6 h-6 animate-spin" />
+                        Processing...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <span>Confirm Visit</span>
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    )}
+                  </Button>
+                </div>
               </div>
             </Card>
           </div>

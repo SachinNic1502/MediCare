@@ -103,144 +103,113 @@ export default function PatientDashboard() {
   const past = appointments.filter(a => a.status === 'completed');
 
   return (
-    <div className="space-y-10">
-      {/* Top Banner - Hero Section */}
-      <div className="bg-black p-12 text-white relative overflow-hidden rounded-[3rem]">
-        {/* Animated background elements */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] -mr-64 -mt-64 animate-pulse"></div>
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[80px] -ml-32 -mb-32"></div>
+    <div className="space-y-12 pb-12">
+      {/* Simple & Clean Header */}
+      <section className="relative h-[280px] flex items-center px-12 overflow-hidden rounded-[2.5rem] bg-slate-900 shadow-xl shadow-slate-200">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+        <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-blue-500/10 rounded-full blur-[80px] -ml-16 -mb-16"></div>
 
-        <div className="relative z-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-            <div className="flex items-center gap-8">
-              <div className="h-24 w-24 rounded-3xl bg-primary/10 backdrop-blur-xl flex items-center justify-center border border-white/10 shadow-2xl relative group cursor-pointer overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <UserIcon className="w-12 h-12 text-primary relative z-10" />
-              </div>
-              <div>
-                <div className="flex items-center gap-3 text-primary font-black text-xs uppercase tracking-[0.2em] mb-2">
-                  <Activity className="w-4 h-4" />
-                  Patient Dashboard
-                </div>
-                <h1 className="text-5xl font-black tracking-tight leading-none mb-2">
-                  Welcome back, <span className="text-primary italic underline decoration-primary/20 underline-offset-8">{user?.firstName || 'Guest'}</span>
-                </h1>
-                <p className="text-white/60 font-bold flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  Patient ID: MED-{user?.id?.slice(-6).toUpperCase()}
-                </p>
-              </div>
+        <div className="relative z-10 w-full flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="flex items-center gap-8">
+            <div className="h-24 w-24 rounded-3xl bg-white/10 border border-white/20 flex items-center justify-center shadow-lg">
+              <UserIcon className="w-12 h-12 text-primary" />
             </div>
-
-            <div className="flex items-center gap-4">
-              <Link href="/patient/appointments">
-                <Button variant="outline" className="font-black rounded-2xl h-16 px-8 border-2 border-white/10 hover:bg-white/5 transition-all text-white">
-                  My Profile
-                </Button>
-              </Link>
-              <Link href="/doctors">
-                <Button size="lg" className="font-black rounded-2xl h-16 px-10 shadow-2xl shadow-primary/40 group bg-primary hover:bg-primary/90 text-white">
-                  Book Appointment <Plus className="w-5 h-5 ml-2 group-hover:rotate-90 transition-transform duration-300" />
-                </Button>
-              </Link>
+            
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white">Your Health Profile</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+                Welcome, <span className="text-blue-400 font-black">{user?.firstName || 'Back'}!</span>
+              </h1>
+              <p className="text-white/50 font-medium flex items-center gap-2 text-sm">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                Patient ID: <span className="text-white/80">MED-{user?.id?.slice(-6).toUpperCase()}</span>
+              </p>
             </div>
           </div>
+
+          <div className="flex items-center gap-4">
+            <Link href="/doctors">
+              <Button size="lg" className="h-14 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/20 group transition-all">
+                Book a Visit <Plus className="w-5 h-5 ml-2 group-hover:rotate-90 transition-transform duration-300" />
+              </Button>
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="-mt-20 relative z-20 px-4">
-        {/* Vital Health Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
-          <Card className="p-8 border-none shadow-2xl shadow-primary/5 bg-white rounded-[2rem] group hover:-translate-y-2 transition-all duration-300 ring-1 ring-black/5 hover:ring-primary/20">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-600">
-                <Calendar className="w-6 h-6" />
+      {/* Main Content Area */}
+      <div className="-mt-16 relative z-20 px-6">
+        {/* Health Summary Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          {[
+            { label: 'Upcoming Visits', value: upcoming.length, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50', status: 'Active' },
+            { label: 'Past Visits', value: past.length, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', status: 'Done' },
+            { label: 'Heart Rate', value: '72', icon: HeartPulse, color: 'text-rose-600', bg: 'bg-rose-50', status: 'Normal', unit: 'bpm' },
+            { label: 'Health Score', value: 'A+', icon: Activity, color: 'text-amber-600', bg: 'bg-amber-50', status: 'Good' },
+          ].map((stat, i) => (
+            <Card key={i} className="p-6 border-none shadow-lg shadow-black/5 bg-white/95 backdrop-blur-sm rounded-3xl transition-all hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color}`}>
+                  <stat.icon className="w-6 h-6" />
+                </div>
+                <Badge variant="secondary" className="font-bold text-[9px] uppercase tracking-wider">{stat.status}</Badge>
               </div>
-              <Badge className="bg-blue-500/10 text-blue-600 border-none">Active</Badge>
-            </div>
-            <p className="text-4xl font-black text-foreground mb-1">{upcoming.length}</p>
-            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground">Upcoming Appts</p>
-          </Card>
-
-          <Card className="p-8 border-none shadow-2xl shadow-primary/5 bg-white rounded-[2rem] group hover:-translate-y-2 transition-all duration-300 ring-1 ring-black/5 hover:ring-emerald-500/20">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-600">
-                <CheckCircle className="w-6 h-6" />
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-black text-foreground">{stat.value}</span>
+                {stat.unit && <span className="text-xs font-bold text-muted-foreground ml-1">{stat.unit}</span>}
               </div>
-              <Badge className="bg-emerald-500/10 text-emerald-600 border-none">Past</Badge>
-            </div>
-            <p className="text-4xl font-black text-foreground mb-1">{past.length}</p>
-            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground">Past Visits</p>
-          </Card>
-
-          <Card className="p-8 border-none shadow-2xl shadow-primary/5 bg-white rounded-[2rem] group hover:-translate-y-2 transition-all duration-300 ring-1 ring-black/5 hover:ring-rose-500/20">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-600">
-                <HeartPulse className="w-6 h-6" />
-              </div>
-              <Badge className="bg-rose-500/10 text-rose-600 border-none">Vitals</Badge>
-            </div>
-            <p className="text-4xl font-black text-foreground mb-1">98.2<span className="text-base text-muted-foreground ml-1 text-xs">bpm</span></p>
-            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground">Heart Rate</p>
-          </Card>
-
-          <Card className="p-8 border-none shadow-2xl shadow-primary/5 bg-white rounded-[2rem] group hover:-translate-y-2 transition-all duration-300 ring-1 ring-black/5 hover:ring-amber-500/20">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-600">
-                <Activity className="w-6 h-6" />
-              </div>
-              <Badge className="bg-amber-500/10 text-amber-600 border-none">Health</Badge>
-            </div>
-            <p className="text-4xl font-black text-foreground mb-1">A+</p>
-            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground">Health Score</p>
-          </Card>
+              <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground mt-1">{stat.label}</p>
+            </Card>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Dashboard Feed */}
+          {/* Main List */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between px-2">
               <div>
-                <h2 className="text-3xl font-black text-foreground tracking-tight">Upcoming <span className="text-primary italic">Appointments</span></h2>
-                <p className="text-sm text-muted-foreground font-bold">Your scheduled visits for this month</p>
+                <h2 className="text-3xl font-bold text-foreground tracking-tight">Your <span className="text-primary italic">Appointments</span></h2>
+                <p className="text-sm text-muted-foreground font-medium">Your upcoming medical visits</p>
               </div>
               <Link href="/doctors">
-                <Button variant="ghost" className="font-black text-primary group rounded-xl px-6">
-                  View All <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <Button variant="ghost" className="font-bold text-primary rounded-xl hover:bg-primary/5">
+                  See All <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
             </div>
 
             {loading ? (
               <div className="space-y-4">
-                {[1, 2].map(i => <div key={i} className="h-40 rounded-[2rem] bg-white animate-pulse"></div>)}
+                {[1, 2].map(i => <div key={i} className="h-40 rounded-3xl bg-white animate-pulse" />)}
               </div>
             ) : upcoming.length === 0 ? (
-              <Card className="p-20 border-dashed border-4 border-muted bg-white/50 text-center rounded-[3rem]">
-                <div className="bg-muted p-10 rounded-full w-fit mx-auto mb-8 shadow-inner">
-                  <Calendar className="w-20 h-20 text-muted-foreground opacity-20" />
+              <Card className="p-16 border-dashed border-2 border-muted bg-white/50 text-center rounded-[2.5rem]">
+                <div className="bg-muted p-10 rounded-full w-fit mx-auto mb-6">
+                  <Calendar className="w-12 h-12 text-muted-foreground opacity-30" />
                 </div>
-                <h3 className="text-3xl font-black text-foreground mb-4 tracking-tight">No active appointments</h3>
-                <p className="text-lg text-muted-foreground max-w-sm mx-auto mb-10 font-medium">
-                  Maintaining health through regular checkups is important.
+                <h3 className="text-2xl font-bold text-foreground mb-2">No appointments yet</h3>
+                <p className="text-muted-foreground max-w-sm mx-auto mb-8 font-medium">
+                  Please book a visit to see your appointment history here.
                 </p>
                 <Link href="/doctors">
-                  <Button className="font-black rounded-2xl h-16 px-12 shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white text-lg">
-                    Find a Doctor
+                  <Button className="font-bold rounded-2xl h-14 px-10 bg-primary hover:bg-primary/90 text-white">
+                    Book a Doctor
                   </Button>
                 </Link>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 gap-6">
+              <div className="space-y-6">
                 {upcoming.map((app) => (
                   <AppointmentCard
                     key={app._id}
                     id={app._id}
-                    doctorName={app.doctorId?.name || 'Unknown Specialist'}
-                    specialty={app.doctorId?.specialty || 'Medical Professional'}
+                    doctorName={app.doctorId?.name || 'Doctor'}
+                    specialty={app.doctorId?.specialty || 'Specialist'}
                     date={new Date(app.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                     time={app.time}
-                    location={app.doctorId?.location || 'Main Hospital Wing'}
+                    location={app.doctorId?.location || 'Medical Center'}
                     status={app.status}
                     notes={app.notes}
                     onCancel={() => handleCancelAppointment(app._id)}
@@ -250,72 +219,71 @@ export default function PatientDashboard() {
               </div>
             )}
 
-            {/* Medical Timeline (Archive) */}
+            {/* Visit History */}
             {past.length > 0 && (
-              <div className="pt-10">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="h-8 w-1 bg-primary rounded-full"></div>
-                  <h2 className="text-3xl font-black text-foreground tracking-tight">Clinical <span className="text-primary italic text-2xl opacity-60">History</span></h2>
-                </div>
-                <div className="grid grid-cols-1 gap-4 opacity-70 group hover:opacity-100 transition-opacity">
+              <div className="pt-8 border-t border-muted/30">
+                <h2 className="text-2xl font-bold text-foreground tracking-tight mb-6 px-2 italic">Past <span className="opacity-40">Visits</span></h2>
+                <div className="space-y-4">
                   {past.slice(0, 3).map((app) => (
-                    <div key={app._id} className="p-6 bg-white rounded-[2rem] shadow-sm border border-transparent hover:border-primary/20 transition-all flex items-center justify-between">
+                    <Card key={app._id} className="p-6 bg-white border-none shadow-sm hover:shadow-md transition-all rounded-[1.8rem] flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                        <div className="h-12 w-12 rounded-2xl bg-emerald-50/10 flex items-center justify-center text-emerald-600">
                           <CheckCircle className="w-6 h-6" />
                         </div>
                         <div>
-                          <p className="font-black text-foreground text-lg">{app.doctorId?.name}</p>
-                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{app.doctorId?.specialty} • {new Date(app.date).toLocaleDateString()}</p>
+                          <p className="font-bold text-foreground leading-tight text-lg">{app.doctorId?.name}</p>
+                          <p className="text-xs font-medium text-muted-foreground mt-1 uppercase tracking-wide">
+                            {app.doctorId?.specialty} • {new Date(app.date).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
-                      <Button variant="ghost" className="rounded-xl font-bold h-10 px-4">View Report</Button>
-                    </div>
+                      <Button variant="ghost" className="rounded-xl font-bold h-10 px-4 text-primary">View Report</Button>
+                    </Card>
                   ))}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Health Intelligence Sidebar */}
+          {/* Sidebar */}
           <div className="space-y-8">
-            <Card className="bg-primary text-white p-10 border-none shadow-[0_30px_60px_-15px_rgba(var(--primary-rgb),0.3)] relative overflow-hidden rounded-[2.5rem] group">
-              <div className="absolute top-0 right-0 p-6 opacity-10">
-                <HeartPulse className="w-32 h-32 -mr-8 -mt-8 rotate-12 group-hover:scale-125 transition-transform duration-700" />
-              </div>
-              <div className="relative z-10">
-                <Badge className="bg-white/20 text-white border-none mb-6 px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest">Priority Care</Badge>
-                <h3 className="text-3xl font-black mb-4 leading-tight">Elevate Your<br /><span className="italic underline underline-offset-8 decoration-white/20">Stability Registry</span></h3>
-                <p className="text-white/70 font-bold mb-10 leading-relaxed">Unlock advanced diagnostics, genomic screening, and 24/7 dedicated medical concierge.</p>
-                <Button className="w-full bg-white text-primary hover:bg-white/90 font-black h-14 rounded-2xl shadow-xl shadow-black/10">Upgrade Bio-Profile</Button>
+            <Card className="bg-slate-900 text-white p-8 border-none shadow-xl rounded-[2rem] relative overflow-hidden group">
+              <div className="relative z-10 space-y-6">
+                <Badge className="bg-primary text-white border-none px-3 py-1 rounded-full font-bold text-[9px] uppercase tracking-wider">Upgrade Available</Badge>
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-bold leading-tight">Get Better Health <br /><span className="text-blue-400 italic">Services Package</span></h3>
+                  <p className="text-white/50 text-sm leading-relaxed">Upgrade to see expert doctors, get faster results, and enjoy 24/7 online support.</p>
+                </div>
+                <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold h-14 rounded-2xl transition-all">Check Now</Button>
               </div>
             </Card>
 
-            {/* Health Tips / Notifications */}
-            <Card className="p-8 border-none shadow-2xl shadow-primary/5 bg-white rounded-[2.5rem]">
-              <h3 className="font-black text-foreground mb-6 uppercase tracking-[0.2em] text-[10px] flex items-center gap-2">
-                <Activity className="w-4 h-4 text-primary" />
-                Health Awareness
+            {/* Updates Feed */}
+            <Card className="p-8 border-none shadow-lg shadow-black/5 bg-white rounded-[2rem]">
+              <h3 className="font-bold text-foreground text-[10px] uppercase tracking-widest flex items-center gap-2 mb-6 opacity-60">
+                <Bell className="w-4 h-4 text-primary" />
+                Health Updates
               </h3>
               <div className="space-y-6">
                 {[
-                  { title: 'Flu Season Precautions', type: 'Clinical Tip', icon: Stethoscope },
-                  { title: 'Annual Lab Work Reminder', type: 'Pending Protocol', icon: FileText },
-                  { title: 'New Specialist Available', type: 'Network Update', icon: UserIcon }
+                  { title: 'Flu Season Alert', info: 'Protect your health today', type: 'Health Tip', icon: Stethoscope, color: 'text-rose-500', bg: 'bg-rose-50' },
+                  { title: 'New Lab Updates', info: 'Check your latest test results', type: 'Lab News', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' },
+                  { title: 'Specialist Opening', info: 'Dr. Evelyn Voss is now online', type: 'New Update', icon: UserIcon, color: 'text-violet-500', bg: 'bg-violet-50' }
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-4 group cursor-pointer">
-                    <div className="h-10 w-10 shrink-0 rounded-xl bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                      <item.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <div key={i} className="flex gap-4 group cursor-pointer">
+                    <div className={`h-10 w-10 shrink-0 rounded-xl ${item.bg} ${item.color} flex items-center justify-center`}>
+                      <item.icon className="w-5 h-5" />
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-0.5">{item.type}</p>
-                      <p className="text-sm font-black text-foreground line-clamp-1">{item.title}</p>
+                    <div className="space-y-0.5">
+                      <p className="text-[9px] font-bold text-primary uppercase tracking-wide">{item.type}</p>
+                      <p className="text-sm font-bold text-foreground leading-tight">{item.title}</p>
+                      <p className="text-[11px] font-medium text-muted-foreground opacity-80 leading-tight">{item.info}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <Button variant="outline" className="w-full mt-10 h-14 font-black rounded-2xl border-2 border-dashed text-muted-foreground hover:text-primary transition-all">
-                Dismiss All Alerts
+              <Button variant="outline" className="w-full mt-10 h-14 rounded-2xl border-2 border-dashed font-bold text-muted-foreground hover:text-primary transition-all text-sm">
+                Mark All as Read
               </Button>
             </Card>
           </div>

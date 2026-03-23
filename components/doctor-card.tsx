@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Clock } from 'lucide-react';
+import { Doctor } from '@/types';
 
 interface DoctorCardProps {
   id: string;
@@ -30,51 +32,68 @@ export function DoctorCard({
   image,
 }: DoctorCardProps) {
   return (
-    <Card className="overflow-hidden border-border hover:shadow-lg transition">
-      {/* Image Section */}
-      <div className="bg-gradient-to-br from-primary to-accent p-8 text-center h-32 flex items-center justify-center">
+    <Card className="overflow-hidden border border-slate-100 bg-white shadow-2xl shadow-slate-100/50 transition-all duration-500 hover:-translate-y-2 group rounded-[2.5rem] flex flex-col">
+      {/* Image / Header Section */}
+      <div className="relative h-56 w-full overflow-hidden bg-slate-900">
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent z-10 opacity-60" />
         {image && image.startsWith('http') ? (
-          <img src={image} alt={name} className="w-16 h-16 rounded-full" />
+          <Image 
+            src={image} 
+            alt={name} 
+            fill
+            className="object-cover group-hover:scale-110 transition-transform duration-700"
+          />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-primary-foreground flex items-center justify-center text-2xl">
+          <div className="absolute inset-0 flex items-center justify-center text-7xl opacity-50 z-20">
             {image || '👨‍⚕️'}
           </div>
         )}
+        <div className="absolute bottom-6 left-6 z-30">
+          <Badge className="bg-primary hover:bg-primary/90 text-white border-none px-3 py-1 rounded-lg font-bold text-[10px] uppercase tracking-widest">
+            {specialty}
+          </Badge>
+        </div>
       </div>
 
       {/* Content Section */}
-      <div className="p-6">
-        <h3 className="font-semibold text-lg text-foreground mb-1">{name}</h3>
-
-        <Badge variant="secondary" className="mb-4">
-          {specialty}
-        </Badge>
-
-        <div className="space-y-2 text-sm mb-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Clock className="w-4 h-4" />
-            <span>{experience} years experience</span>
+      <div className="p-8 flex-1 flex flex-col justify-between">
+        <div className="space-y-6">
+          <div className="flex items-start justify-between">
+            <h3 className="font-black text-2xl text-slate-900 tracking-tight leading-tight">{name}</h3>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
+              <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+              <span className="text-xs font-black">{rating}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="w-4 h-4" />
-            <span>{location}</span>
+
+          <div className="grid grid-cols-1 gap-4 text-sm font-bold text-slate-500">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-slate-50 text-primary">
+                <Clock className="w-4 h-4" />
+              </div>
+              <span>{experience} years seniority</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-slate-50 text-primary">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <span className="line-clamp-1">{location}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-foreground font-medium">{rating}/5</span>
-            <span className="text-muted-foreground">({reviews} reviews)</span>
+
+          <div className="p-5 rounded-[1.8rem] bg-slate-50 border border-slate-100">
+            <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Available Since</p>
+            <p className="text-sm font-black text-slate-900">{availability}</p>
           </div>
         </div>
 
-        <div className="bg-muted p-3 rounded-md mb-4">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Next Available</p>
-          <p className="text-sm font-semibold text-foreground">{availability}</p>
-        </div>
-
-        <Link href={`/patient/book-appointment?doctorId=${id}`}>
-          <Button className="w-full">Book Appointment</Button>
+        <Link href={`/patient/book-appointment?doctorId=${id}`} className="mt-8">
+          <Button className="w-full h-14 rounded-2xl font-black text-white shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-95 leading-none">
+            Book a Visit
+          </Button>
         </Link>
       </div>
     </Card>
   );
 }
+

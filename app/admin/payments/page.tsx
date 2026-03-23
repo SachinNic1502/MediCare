@@ -203,284 +203,280 @@ export default function AdminPayments() {
     }
 
     return (
-        <div className="p-6 space-y-8 max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <button
-                        onClick={() => router.back()}
-                        className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-2 text-sm font-bold uppercase tracking-wider"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Dashboard
-                    </button>
-                    <h1 className="text-4xl font-black text-foreground tracking-tight">
-                        Revenue <span className="text-primary italic">Management</span>
-                    </h1>
-                    <p className="text-muted-foreground font-medium">Monitor and audit all hospital transactions</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" className="rounded-xl font-bold h-12 px-6" onClick={fetchPayments}>
-                        <RefreshCcw className="w-4 h-4 mr-2" />
-                        Refresh
-                    </Button>
-
-                    <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="rounded-xl font-bold h-12 px-6 shadow-xl shadow-primary/20 bg-primary text-white">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Create Payment
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-md rounded-[2rem] border-none shadow-2xl">
-                            <DialogHeader>
-                                <DialogTitle className="text-2xl font-black text-foreground">Record New <span className="text-primary italic text-xl opacity-80">Payment</span></DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-6 py-4">
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Select Appointment</Label>
-                                    <Select
-                                        onValueChange={(value) => {
-                                            setSelectedAppointment(value);
-                                            const apt = appointments.find(a => a._id === value);
-                                            if (apt && apt.consultationFee) {
-                                                setAmount(apt.consultationFee.toString());
-                                            } else if (apt && apt.doctorId?.consultationFee) {
-                                                setAmount(apt.doctorId.consultationFee.toString());
-                                            }
-                                        }}
-                                        value={selectedAppointment}
-                                    >
-                                        <SelectTrigger className="rounded-xl border-slate-200 h-12 font-medium">
-                                            <SelectValue placeholder="Pick an appointment..." />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-xl border-none shadow-xl">
-                                            {appointments.length === 0 ? (
-                                                <div className="p-4 text-center text-sm text-muted-foreground">No recent appointments found</div>
-                                            ) : (
-                                                appointments.map((apt) => (
-                                                    <SelectItem key={apt._id} value={apt._id} className="rounded-lg font-medium">
-                                                        {apt.patientId?.firstName} {apt.patientId?.lastName} - {apt.doctorId?.name} ({new Date(apt.date).toLocaleDateString()})
-                                                    </SelectItem>
-                                                ))
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Payment Amount ($)</Label>
-                                    <Input
-                                        type="number"
-                                        placeholder="0.00"
-                                        className="rounded-xl border-slate-200 h-12 font-bold text-lg"
-                                        value={amount}
-                                        onChange={(e) => setAmount(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Method</Label>
-                                    <Select onValueChange={setPaymentMethod} value={paymentMethod}>
-                                        <SelectTrigger className="rounded-xl border-slate-200 h-12 font-medium">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-xl border-none shadow-xl">
-                                            <SelectItem value="credit_card" className="rounded-lg font-medium">Credit/Debit Card</SelectItem>
-                                            <SelectItem value="bank_transfer" className="rounded-lg font-medium">Bank Transfer</SelectItem>
-                                            <SelectItem value="cash" className="rounded-lg font-medium">Cash Payment</SelectItem>
-                                            <SelectItem value="insurance" className="rounded-lg font-medium">Insurance Claim</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    className="w-full rounded-xl h-12 font-black uppercase tracking-widest shadow-lg shadow-primary/20"
-                                    onClick={handleCreatePayment}
-                                    disabled={creating}
-                                >
-                                    {creating ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                                    Confirm Payment Entry
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-
-                    <Button className="rounded-xl font-bold h-12 px-6 shadow-xl shadow-primary/10 variant-outline" variant="outline">
-                        <Download className="w-4 h-4 mr-2" />
-                        Export Report
-                    </Button>
-                </div>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="p-6 border-none shadow-sm bg-white">
-                    <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Revenue</p>
-                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
-                            <CreditCard className="w-4 h-4" />
-                        </div>
-                    </div>
-                    <p className="text-3xl font-black text-foreground">${stats.totalRevenue.toLocaleString()}</p>
-                    <p className="text-[10px] text-emerald-600 font-bold mt-1">+12.5% from last month</p>
-                </Card>
-
-                <Card className="p-6 border-none shadow-sm bg-white">
-                    <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Receivables</p>
-                        <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600">
-                            <Clock className="w-4 h-4" />
-                        </div>
-                    </div>
-                    <p className="text-3xl font-black text-foreground">${stats.pendingAmount.toLocaleString()}</p>
-                    <p className="text-[10px] text-amber-600 font-bold mt-1">Pending transactions</p>
-                </Card>
-
-                <Card className="p-6 border-none shadow-sm bg-white">
-                    <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Orders</p>
-                        <div className="p-2 rounded-lg bg-blue-500/10 text-blue-600">
-                            <Users className="w-4 h-4" />
-                        </div>
-                    </div>
-                    <p className="text-3xl font-black text-foreground">{stats.totalCount}</p>
-                    <p className="text-[10px] text-blue-600 font-bold mt-1">Life-time entries</p>
-                </Card>
-
-                <Card className="p-6 border-none shadow-sm bg-white">
-                    <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Fulfillment</p>
-                        <div className="p-2 rounded-lg bg-violet-500/10 text-violet-600">
-                            <CheckCircle className="w-4 h-4" />
-                        </div>
-                    </div>
-                    <p className="text-3xl font-black text-foreground">{((stats.paidCount / (stats.totalCount || 1)) * 100).toFixed(1)}%</p>
-                    <p className="text-[10px] text-violet-600 font-bold mt-1">Completion rate</p>
-                </Card>
-            </div>
-
-            {/* Main Table Card */}
-            <Card className="border-none shadow-sm overflow-hidden bg-white/50 backdrop-blur-sm">
-                <div className="p-6 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <input
-                            type="text"
-                            placeholder="Search by Patient, Doctor, or Transaction ID..."
-                            className="w-full pl-10 pr-4 py-2 rounded-xl border border-border/50 bg-background focus:ring-2 focus:ring-primary outline-none transition-all text-sm font-medium"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-muted-foreground mr-1" />
-                        {['all', 'paid', 'pending', 'refunded'].map((status) => (
-                            <Button
-                                key={status}
-                                variant={filterStatus === status ? 'default' : 'ghost'}
-                                size="sm"
-                                className={`text-xs font-bold rounded-lg ${filterStatus === status ? 'bg-primary text-white' : 'text-muted-foreground hover:text-primary'}`}
-                                onClick={() => setFilterStatus(status)}
-                            >
-                                {status.toUpperCase()}
-                            </Button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="bg-muted/30 border-b border-border/50">
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Patient</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Provider/Clinic</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Amount</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Date</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Identifier</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border/50">
-                            {filteredPayments.length === 0 ? (
-                                <tr>
-                                    <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground font-medium italic">
-                                        No transactions found matching the current criteria.
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredPayments.map((payment) => (
-                                    <tr key={payment._id} className="hover:bg-primary/[0.02] transition-colors group">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-primary font-bold text-xs">
-                                                    {payment?.appointmentId?.patientId?.firstName?.[0] || 'P'}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-foreground">
-                                                        {payment?.appointmentId?.patientId
-                                                            ? `${payment.appointmentId.patientId.firstName} ${payment.appointmentId.patientId.lastName}`
-                                                            : 'Unknown Patient'
-                                                        }
-                                                    </p>
-                                                    <p className="text-[10px] text-muted-foreground font-medium">{payment?.appointmentId?.patientId?.email}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div>
-                                                <p className="text-sm font-bold text-foreground">{payment?.appointmentId?.doctorId?.name}</p>
-                                                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter italic">{payment?.appointmentId?.doctorId?.specialty}</p>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm font-black text-foreground">${payment.amount.toLocaleString()}</p>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-muted-foreground font-medium">
-                                            {new Date(payment.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {getStatusBadge(payment.status)}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <code className="text-[10px] font-bold bg-muted p-1.5 rounded-lg text-muted-foreground group-hover:text-primary transition-colors">
-                                                {payment.transactionId}
-                                            </code>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            {payment.status === 'pending' && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    className="text-[10px] font-black uppercase h-8 px-3 rounded-lg border-emerald-500/50 text-emerald-600 hover:bg-emerald-50"
-                                                    disabled={loading}
-                                                    onClick={async () => {
-                                                        try {
-                                                            const res = await fetch(`/api/payments/${payment._id}`, { method: 'POST' });
-                                                            if (res.ok) {
-                                                                toast.success('Transaction marked as PAID');
-                                                                fetchPayments();
-                                                            } else {
-                                                                toast.error('Failed to update status');
-                                                            }
-                                                        } catch (err) {
-                                                            toast.error('Network error');
-                                                        }
-                                                    }}
-                                                >
-                                                    Mark Paid
-                                                </Button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </Card>
+    <div className="space-y-10 pb-12 max-w-7xl mx-auto">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+        <div>
+          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.2em] mb-3">
+            <CreditCard className="w-4 h-4" />
+            Financial Intelligence
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Financial <span className="text-primary italic">Registry.</span>
+          </h1>
+          <p className="text-slate-500 mt-2 font-medium text-lg">Monitor and audit all hospital transactions and billing logs</p>
         </div>
-    );
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            className="rounded-2xl font-black gap-2 h-14 px-8 bg-white border-2 border-slate-100 text-slate-900 hover:bg-slate-50 transition-all font-display"
+            onClick={fetchPayments}
+          >
+            <RefreshCcw className="w-4 h-4 text-primary" />
+            Refresh Data
+          </Button>
+
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2 rounded-2xl font-black h-14 px-8 shadow-xl shadow-primary/20 bg-primary text-white hover:bg-primary/90 transition-all active:scale-95">
+                <Plus className="w-5 h-5 mr-1" />
+                Record Payment
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl rounded-[3.5rem] border-none shadow-2xl p-1 bg-white overflow-hidden">
+              <div className="bg-slate-50/50 p-10 flex items-center justify-between shrink-0 border-b border-slate-100 rounded-t-[3.4rem]">
+                <div>
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tight">Record Entry.</h2>
+                  <p className="text-slate-500 font-medium text-sm mt-1 font-display">Log a new clinical transaction into the registry</p>
+                </div>
+                <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-white shadow-xl hover:bg-slate-900 hover:text-white transition-all" onClick={() => setIsCreateDialogOpen(false)}>
+                  <Plus className="w-5 h-5 rotate-45" />
+                </Button>
+              </div>
+              <div className="p-10 space-y-8">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Assigned Case / Visit</Label>
+                  <Select
+                    onValueChange={(value) => {
+                      setSelectedAppointment(value);
+                      const apt = appointments.find(a => a._id === value);
+                      if (apt && apt.consultationFee) {
+                        setAmount(apt.consultationFee.toString());
+                      } else if (apt && apt.doctorId?.consultationFee) {
+                        setAmount(apt.doctorId.consultationFee.toString());
+                      }
+                    }}
+                    value={selectedAppointment}
+                  >
+                    <SelectTrigger className="h-14 rounded-2xl font-black border-2 border-slate-50 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all text-lg pl-6">
+                      <SelectValue placeholder="Pick an active case..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-none shadow-2xl p-2 bg-white/95 backdrop-blur-xl">
+                      {appointments.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-slate-400 font-bold uppercase tracking-widest">No Active Cases Found</div>
+                      ) : (
+                        appointments.map((apt) => (
+                          <SelectItem key={apt._id} value={apt._id} className="rounded-xl font-bold py-3 px-4 hover:bg-slate-50 text-slate-700">
+                            {apt.patientId?.firstName} {apt.patientId?.lastName} - {apt.doctorId?.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Fee Amount ($)</Label>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    className="h-14 rounded-2xl font-black border-2 border-slate-50 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all text-2xl pl-6"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Payment Channel</Label>
+                  <Select onValueChange={setPaymentMethod} value={paymentMethod}>
+                    <SelectTrigger className="h-14 rounded-2xl font-black border-2 border-slate-50 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all text-lg pl-6">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-none shadow-2xl p-2 bg-white/95 backdrop-blur-xl">
+                      <SelectItem value="credit_card" className="rounded-xl font-bold py-3 px-4 hover:bg-slate-50">Credit / Debit Instrument</SelectItem>
+                      <SelectItem value="bank_transfer" className="rounded-xl font-bold py-3 px-4 hover:bg-slate-50">Direct Bank Transfer</SelectItem>
+                      <SelectItem value="cash" className="rounded-xl font-bold py-3 px-4 hover:bg-slate-50">Cash Settlement</SelectItem>
+                      <SelectItem value="insurance" className="rounded-xl font-bold py-3 px-4 hover:bg-slate-50">Insurance Coverage Claim</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="p-10 pt-0 bg-white">
+                <Button
+                  className="w-full h-20 rounded-[1.8rem] font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white transition-all active:scale-95 leading-none"
+                  onClick={handleCreatePayment}
+                  disabled={creating}
+                >
+                  {creating ? <RefreshCcw className="w-5 h-5 animate-spin" /> : 'Finalize Payment Entry'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Button variant="outline" className="rounded-2xl font-black gap-2 h-14 px-8 bg-white border-2 border-slate-100 text-slate-900 hover:bg-slate-50 transition-all font-display">
+            <Download className="w-5 h-5 text-slate-400" />
+            Export Data
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: 'Total Revenue', value: `$${stats.totalRevenue.toLocaleString()}`, icon: CreditCard, color: 'text-emerald-600', bg: 'bg-emerald-50', sub: '+12.5% vs Previous' },
+          { label: 'Pending Dues', value: `$${stats.pendingAmount.toLocaleString()}`, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', sub: 'Awaiting Settlement' },
+          { label: 'Global Orders', value: stats.totalCount, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', sub: 'Life-time Log entries' },
+          { label: 'Collection Rate', value: `${((stats.paidCount / (stats.totalCount || 1)) * 100).toFixed(1)}%`, icon: CheckCircle, color: 'text-violet-600', bg: 'bg-violet-50', sub: 'Audit Efficiency' },
+        ].map((stat) => (
+          <Card key={stat.label} className="p-8 border border-slate-50 bg-white shadow-xl shadow-slate-200/50 rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 group relative overflow-hidden">
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-8">
+                <div className={`h-14 w-14 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center`}>
+                  <stat.icon className="w-7 h-7" />
+                </div>
+                <Badge className={`${stat.bg} ${stat.color} border-none font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-lg`}>
+                  Real-time
+                </Badge>
+              </div>
+              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">{stat.label}</p>
+              <p className="text-4xl font-black text-slate-900 tracking-tighter mb-2">{stat.value}</p>
+              <p className={`text-[10px] ${stat.color} font-black uppercase tracking-tighter`}>{stat.sub}</p>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Main Table Card */}
+      <Card className="border border-slate-50 bg-white shadow-xl shadow-slate-200/50 rounded-[3rem] overflow-hidden">
+        <div className="p-10 border-b border-slate-50 bg-slate-50/30 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="relative group flex-1 max-w-xl">
+            <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+            <input
+              type="text"
+              placeholder="Search by Patient, Doctor, or Transaction ID..."
+              className="w-full pl-16 pr-8 h-16 bg-white border-none rounded-3xl text-lg font-bold text-slate-900 shadow-sm focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-slate-400 outline-none"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-3 bg-white p-2 rounded-[2rem] shadow-sm border border-slate-100 flex-wrap">
+            {['all', 'paid', 'pending', 'refunded'].map((status) => (
+              <Button
+                key={status}
+                variant={filterStatus === status ? 'default' : 'ghost'}
+                size="sm"
+                className={`h-12 px-6 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all ${filterStatus === status ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'}`}
+                onClick={() => setFilterStatus(status)}
+              >
+                {status}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-slate-50/50">
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 font-display">Patient Identity</th>
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 font-display">Provider / Unit</th>
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 font-display">Fee Amount</th>
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 font-display">Cycle Date</th>
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 font-display text-center">Audit Status</th>
+                <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 font-display">Registry UID</th>
+                <th className="px-10 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 font-display">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {filteredPayments.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-10 py-32 text-center text-slate-400 font-black uppercase tracking-widest opacity-40">
+                    Null Settlement Registry Found.
+                  </td>
+                </tr>
+              ) : (
+                filteredPayments.map((payment) => (
+                  <tr key={payment._id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-10 py-8">
+                      <div className="flex items-center gap-5">
+                        <div className="h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-black text-sm">
+                          {payment?.appointmentId?.patientId?.firstName?.[0] || 'P'}
+                        </div>
+                        <div>
+                          <p className="font-black text-slate-900 text-lg leading-tight">
+                            {payment?.appointmentId?.patientId
+                              ? `${payment.appointmentId.patientId.firstName} ${payment.appointmentId.patientId.lastName}`
+                              : 'Unknown Patient'
+                            }
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1.5 opacity-60 italic">{payment?.appointmentId?.patientId?.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8">
+                      <div>
+                        <p className="text-sm font-black text-slate-900">{payment?.appointmentId?.doctorId?.name}</p>
+                        <p className="text-[10px] text-primary uppercase font-black tracking-tighter mt-1">{payment?.appointmentId?.doctorId?.specialty}</p>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8">
+                      <p className="text-2xl font-black text-slate-900 tracking-tighter">${payment.amount.toLocaleString()}</p>
+                    </td>
+                    <td className="px-10 py-8">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-black text-slate-900">
+                          {new Date(payment.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Settlement Logged</span>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8 text-center">
+                      <Badge className={`
+                        px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-none
+                        ${payment.status === 'paid' ? 'bg-emerald-50 text-emerald-600' : 
+                          payment.status === 'pending' ? 'bg-amber-50 text-amber-600' : 
+                          payment.status === 'refunded' ? 'bg-blue-50 text-blue-600' : 
+                          'bg-rose-50 text-rose-600'}
+                      `}>
+                        {payment.status}
+                      </Badge>
+                    </td>
+                    <td className="px-10 py-8">
+                      <code className="text-[10px] font-black bg-slate-50 px-3 py-2 rounded-xl text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all duration-500 border border-slate-100">
+                        TXN-{payment.transactionId.toUpperCase()}
+                      </code>
+                    </td>
+                    <td className="px-10 py-8 text-right">
+                      {payment.status === 'pending' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest border-2 border-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all px-6"
+                          onClick={async () => {
+                            try {
+                              const res = await fetch(`/api/payments/${payment._id}`, { method: 'POST' });
+                              if (res.ok) {
+                                toast.success('Transaction marked as PAID');
+                                fetchPayments();
+                              } else {
+                                toast.error('Failed to update status');
+                              }
+                            } catch (err) {
+                              toast.error('Network error');
+                            }
+                          }}
+                        >
+                          Mark Paid
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
 }

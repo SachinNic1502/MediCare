@@ -62,6 +62,14 @@ export async function POST(request: NextRequest) {
     });
 
     await payment.save();
+    
+    // Update the corresponding appointment
+    await Appointment.findByIdAndUpdate(body.appointmentId, {
+      paymentStatus: body.status || 'paid',
+      paymentId: payment._id,
+      // If it's a confirmed payment, we might want to ensure the status is 'scheduled' or 'completed'
+      // For now, let's just sync the payment info
+    });
 
     return NextResponse.json({
       success: true,
